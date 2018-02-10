@@ -1,0 +1,13 @@
+{
+    "cron_type":0,
+    "interval": 1,
+    "start": [2],
+    "platform": "demo",
+    "service": "algo",
+    "data": [
+        {
+            "service_id": 1,
+            "params": "nums=100000000&tasks=10000000&digit=9&rand=0"
+        }
+    ]
+}

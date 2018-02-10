@@ -1,0 +1,26 @@
+{
+    "sdk": {
+        "port": 58888,
+        "read_timeout": 300,
+        "write_timeout": 300,
+        "task_timeout": 1800,
+        "auto_loading": "sdk"
+    },
+    "services": {
+        "port": 58889,
+        "read_timeout": 300,
+        "write_timeout": 300,
+        "task_timeout": 1800,
+        "auto_loading": "services"
+    },
+    "common": {
+        "product": "nuxim",
+        "conf": "../conf",
+        "output": "../output",
+        "data": "../data",
+        "pids": "../pids",
+        "logs": "../logs",
+        "log_level": "none",
+        "online": 1
+    }
+}

@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*.o
+*.swp
+*.log
+*.bak
+*.mp4
+*.gif
+*.png
+*.jpg
+core.*
+*.tar.gz
+
+# 过滤掉配置文件
+#__init__.txt
+
+# ctags文件.
+.tags*
+tags
+
+# 过滤掉data/output目录及logs目录
+output/
+logs/
+man/
+share/
+libexec/*.trace/
+lib/
+include/
+src/*
+bin/
+pkg/
+pids/
+data/
+src/nuxim/.idea/*
+.idea/*
+
+# 跟踪文件或目录
+!src/nuxim
