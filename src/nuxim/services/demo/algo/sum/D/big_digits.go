@@ -1,4 +1,4 @@
-package C
+package D
 
 import (
 	"math/rand"
@@ -7,12 +7,10 @@ import (
 	"time"
 )
 
-func calculateSum(conf DigitSum, r *rand.Rand, c []int, cnt int) int {
+func calculateSum(a, b, c []int) int {
 	step := 0
-	for i := cnt - 1; i >= 0; i-- {
-		a := initDigit(conf, r)
-		b := initDigit(conf, r)
-		n := a + b + step
+	for i := len(a) - 1; i >= 0; i-- {
+		n := a[i] + b[i] + step
 		step = 0
 		if n > 9 {
 			step = 1
@@ -36,9 +34,8 @@ func addStep(c []int) {
 	}
 }
 
-func runSumTask(conf DigitSum, r *rand.Rand, cnt int, preCh, ch chan int) {
-	c := make([]int, cnt)
-	step := calculateSum(conf, r, c, cnt)
+func sumDigits(a, b, c []int, i int, preCh, ch chan int) {
+	step := calculateSum(a, b, c)
 	x := <-ch
 	if x > 0 {
 		addStep(c)
@@ -55,11 +52,22 @@ func initTaskNums(conf DigitSum) int {
 	return cnt
 }
 
-func initDigit(conf DigitSum, r *rand.Rand) int {
-	if conf.Rand > 0 {
-		return r.Intn(10)
+func initDigits(conf DigitSum, r *rand.Rand, cnt int) []int {
+	a := make([]int, cnt)
+	for i := 0; i < cnt; i++ {
+		a[i] = conf.Digit
+		if conf.Rand > 0 {
+			a[i] = r.Intn(10)
+		}
 	}
-	return conf.Digit
+	return a
+}
+
+func runSumTask(conf DigitSum, i, cnt int, r *rand.Rand, preCh, ch chan int) {
+	a := initDigits(conf, r, cnt)
+	b := initDigits(conf, r, cnt)
+	c := make([]int, cnt)
+	go sumDigits(a, b, c, i, preCh, ch)
 }
 
 func Run(conf DigitSum) {
@@ -73,14 +81,14 @@ func Run(conf DigitSum) {
 	}
 
 	for i := 2; i < loops+2; i++ {
-		go runSumTask(conf, r, cnt, ch[i-1], ch[i])
+		runSumTask(conf, i, cnt, r, ch[i-1], ch[i])
 	}
 	// 最后一位,无进位
 	ch[loops+1] <- 0
 	start := 1
 	if conf.Total > loops*cnt {
 		start = 0
-		go runSumTask(conf, r, conf.Total-loops*cnt, ch[0], ch[1])
+		runSumTask(conf, loops, conf.Total-loops*cnt, r, ch[0], ch[1])
 	}
 	// 读取进位信息, 0或1
 	<-ch[start]

@@ -24,13 +24,10 @@ func runSumTask(a, b, i int, preCh, ch, r chan int) {
 	//util.Log("Task", i, "Done")
 }
 
-func initTasksCount(conf DigitSum) int {
+func initTaskNums(conf DigitSum) int {
 	cnt := conf.Nums
-	if conf.Tasks < conf.Nums {
-		cnt = conf.Tasks
-	}
-	if cnt > MAX_TASKS {
-		cnt = MAX_TASKS
+	if cnt > MAX_NUMS {
+		cnt = MAX_NUMS
 	}
 	return cnt
 }
@@ -69,14 +66,14 @@ func runSumTasks(conf DigitSum, cnt, step int, s *rand.Rand, r chan int) int {
 func SumDigits(conf DigitSum) {
 	s := rand.New(rand.NewSource(time.Now().UnixNano()))
 	r := make(chan int)
-	cnt := initTasksCount(conf)
+	cnt := initTaskNums(conf)
 	step := 0
-	loops := conf.Nums / cnt
+	loops := conf.Total / cnt
 	for i := 0; i < loops; i++ {
 		step = runSumTasks(conf, cnt, step, s, r)
 	}
-	if conf.Nums > loops*cnt {
-		step = runSumTasks(conf, conf.Nums-loops*cnt, step, s, r)
+	if conf.Total > loops*cnt {
+		step = runSumTasks(conf, conf.Total-loops*cnt, step, s, r)
 	}
 	util.Log("Step", step)
 }

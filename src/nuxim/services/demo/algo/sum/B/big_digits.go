@@ -9,9 +9,9 @@ import (
 )
 
 func InitDigits(conf DigitSum) []int {
-	a := make([]int, conf.Nums+1)
+	a := make([]int, conf.Total+1)
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i := 1; i < conf.Nums+1; i++ {
+	for i := 1; i < conf.Total+1; i++ {
 		a[i] = conf.Digit
 		if conf.Rand > 0 {
 			a[i] = r.Intn(10)
@@ -37,13 +37,10 @@ func runSumTask(a, b, i int, preCh, ch chan int, r chan TaskResult) {
 	//util.Log("Task", i, "Done")
 }
 
-func initTasksCount(conf DigitSum) int {
+func initTaskNums(conf DigitSum) int {
 	cnt := conf.Nums
-	if conf.Tasks < conf.Nums {
-		cnt = conf.Tasks
-	}
-	if cnt > MAX_TASKS {
-		cnt = MAX_TASKS
+	if cnt > MAX_NUMS {
+		cnt = MAX_NUMS
 	}
 	return cnt
 }
@@ -87,23 +84,23 @@ func runSumTasks(conf DigitSum, a, b, c []int, ch []chan int, start, end, step i
 }
 
 func SumDigits(conf DigitSum, a, b []int) []int {
-	c := make([]int, conf.Nums+1)
-	ch := make([]chan int, conf.Nums+1)
+	c := make([]int, conf.Total+1)
+	ch := make([]chan int, conf.Total+1)
 	r := make(chan TaskResult)
-	cnt := initTasksCount(conf)
-	for i := 0; i < conf.Nums+1; i++ {
+	cnt := initTaskNums(conf)
+	for i := 0; i < conf.Total+1; i++ {
 		ch[i] = make(chan int)
 	}
 	step := 0
-	loops := conf.Nums / cnt
+	loops := conf.Total / cnt
 	for i := 0; i < loops; i++ {
-		start := conf.Nums - (i+1)*cnt + 1
-		end := conf.Nums - i*cnt + 1
+		start := conf.Total - (i+1)*cnt + 1
+		end := conf.Total - i*cnt + 1
 		step = runSumTasks(conf, a, b, c, ch, start, end, step, r)
 	}
-	if conf.Nums > loops*cnt {
+	if conf.Total > loops*cnt {
 		start := 1
-		end := conf.Nums - loops*cnt + 1
+		end := conf.Total - loops*cnt + 1
 		step = runSumTasks(conf, a, b, c, ch, start, end, step, r)
 	}
 	c[0] = step

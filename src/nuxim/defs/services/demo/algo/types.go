@@ -1,7 +1,7 @@
 package algo
 
 type DigitSum struct {
-	Nums, Tasks, Digit, Rand int
+	Total, Nums, Tasks, Digit, Rand int
 }
 
 type SumTask struct {

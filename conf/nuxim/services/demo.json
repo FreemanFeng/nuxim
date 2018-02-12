@@ -7,7 +7,7 @@
     "data": [
         {
             "service_id": 1,
-            "params": "nums=100000000&tasks=10000000&digit=9&rand=0"
+            "params": "total=10000000000&nums=1000000&tasks=10&digit=9&rand=0"
         }
     ]
 }
