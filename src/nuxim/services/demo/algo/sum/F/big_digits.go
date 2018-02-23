@@ -1,17 +1,15 @@
-package E
+package F
 
 import (
 	"math/rand"
 	. "nuxim/defs/services/demo/algo"
-	"nuxim/util"
+	//"nuxim/util"
 	"time"
 )
 
-func calculateSum(a, b, c []int, cnt, k int) int {
+func calculateSum(a, b, c []int) int {
 	step := 0
-	end := (k + 1) * cnt
-	start := k * cnt
-	for i := end - 1; i >= start; i-- {
+	for i := len(a) - 1; i >= 0; i-- {
 		n := a[i] + b[i] + step
 		step = 0
 		if n > 9 {
@@ -23,11 +21,9 @@ func calculateSum(a, b, c []int, cnt, k int) int {
 	return step
 }
 
-func addStep(c []int, cnt, k int) {
-	end := (k + 1) * cnt
-	start := k * cnt
+func addStep(c []int) {
 	step := 1
-	for i := end - 1; i >= start; i-- {
+	for i := len(c) - 1; i >= 0; i-- {
 		n := c[i] + step
 		step = 0
 		if n > 9 {
@@ -38,19 +34,14 @@ func addStep(c []int, cnt, k int) {
 	}
 }
 
-func sumDigits(a, b, c []int, i, cnt, k int, preCh, ch chan int) {
-	step := calculateSum(a, b, c, cnt, k)
+func sumDigits(a, b, c []int, i int, preCh, ch chan int) {
+	step := calculateSum(a, b, c)
 	x := <-ch
-	//util.Log("Task", i, "Got Step", x)
 	if x > 0 {
-		//end := (k + 1) * cnt
-		//start := k * cnt
-		//util.Log("Task", i, "Result", c[start:end], "Add Step", x)
-		addStep(c, cnt, k)
+		addStep(c)
 	}
-	//end := (k + 1) * cnt
-	//start := k * cnt
-	//util.Log("Task", i, "Result", c[start:end], "Step", step)
+	//util.Log("Task", i, "Result[0:10]", c[0:10], "Step", step)
+	//util.Log("Task", i, "Result", c, "Step", step)
 	preCh <- step
 }
 
@@ -73,23 +64,17 @@ func initDigits(conf DigitSum, r *rand.Rand, cnt int) []int {
 	return a
 }
 
-func initSumTask(conf DigitSum, tasks int, r *rand.Rand) ([]int, []int, []int) {
-	cnt := tasks * conf.Nums
+func runSumTask(conf DigitSum, i, cnt int, r *rand.Rand, preCh, ch chan int) {
 	a := initDigits(conf, r, cnt)
 	b := initDigits(conf, r, cnt)
 	c := make([]int, cnt)
-	return a, b, c
-}
-
-func runSumTask(i, cnt, k int, a, b, c []int, r *rand.Rand, preCh, ch chan int) {
-	go sumDigits(a, b, c, i, cnt, k, preCh, ch)
+	go sumDigits(a, b, c, i, preCh, ch)
 }
 
 func Run(conf DigitSum) {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	tasks := initTasks(conf)
 	loops := conf.Total / (tasks * conf.Nums)
-
 	// 初始化channel数组
 	ch := make([]chan int, loops*tasks+2)
 	for i := 0; i < loops*tasks+2; i++ {
@@ -97,11 +82,9 @@ func Run(conf DigitSum) {
 	}
 
 	step := 0
-	a, b, c := initSumTask(conf, tasks, r)
-	util.Log("Begin to Calculate ...")
 	for i := loops - 1; i >= 0; i-- {
 		for k := 2; k < tasks+2; k++ {
-			runSumTask(i*tasks+k, conf.Nums, k-2, a, b, c, r, ch[i*tasks+k-1], ch[i*tasks+k])
+			runSumTask(conf, i*tasks+k, conf.Nums, r, ch[i*tasks+k-1], ch[i*tasks+k])
 		}
 		// 最后一位,无进位
 		ch[(i+1)*tasks+1] <- step
@@ -109,8 +92,7 @@ func Run(conf DigitSum) {
 		step = <-ch[i*tasks+1]
 	}
 	if conf.Total > loops*tasks*conf.Nums {
-		cnt := conf.Total - loops*tasks*conf.Nums
-		runSumTask(1, cnt, 0, a, b, c, r, ch[0], ch[1])
+		runSumTask(conf, 1, conf.Total-loops*tasks*conf.Nums, r, ch[0], ch[1])
 		ch[1] <- step
 		step = <-ch[0]
 	}

@@ -15,14 +15,14 @@ import (
 
 func Usage() {
 	fmt.Fprintln(os.Stderr, "Usage of ", os.Args[0],
-		"[-cpuProfile filePath] [-memProfile port]")
+		"[-config config_file] [-cpuPort port] [-memPort port]")
 	flag.PrintDefaults()
 	os.Exit(0)
 }
 
 func main() {
 	flag.Usage = Usage
-	var configFile, cpuProfile, memPort string
+	var configFile, memPort, cpuPort string
 	var help bool
 
 	_ = strconv.Atoi
@@ -30,8 +30,8 @@ func main() {
 	flag.Usage = Usage
 
 	flag.StringVar(&configFile, "config", DEFAULT_CONFIG_FILE, "config file")
-	flag.StringVar(&cpuProfile, "cpuProfile", "", "write cpu profile to file")
-	flag.StringVar(&memPort, "memProfile", "", "port to profile memory")
+	flag.StringVar(&memPort, "memPort", "", "port to profile memory")
+	flag.StringVar(&cpuPort, "cpuPort", "", "port to profile cpu")
 
 	flag.BoolVar(&help, "h", false, "Show Usage")
 	flag.Parse()
@@ -42,7 +42,7 @@ func main() {
 	}
 
 	util.ProfilingMemory(memPort)
-	util.ProfilingCPU(cpuProfile)
+	util.ProfilingCPU(cpuPort)
 
 	config := util.InitConfig(configFile)
 	rootPath := filepath.Dir(configFile)

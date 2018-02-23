@@ -3,15 +3,14 @@ package util
 import (
 	"log"
 	"net/http"
-	_ "net/http/pprof"
-	"os"
-	"runtime/pprof"
+	"net/http/pprof"
+	cpuprof "runtime/pprof"
 	"strings"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
-	p := pprof.Lookup("goroutine")
+	p := cpuprof.Lookup("goroutine")
 	p.WriteTo(w, 1)
 }
 
@@ -26,13 +25,21 @@ func ProfilingMemory(memPort string) {
 	}
 }
 
-func ProfilingCPU(cpuProfile string) {
-	if len(cpuProfile) > 0 {
-		f, err := os.Create(cpuProfile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
+func ProfilingCPU(cpuPort string) {
+	if len(cpuPort) > 0 {
+		r := http.NewServeMux()
+
+		// Register pprof handlers
+		r.HandleFunc("/debug/pprof/", pprof.Index)
+		r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		r.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		r.HandleFunc("/debug/pprof/trace", pprof.Trace)
+
+		s := []string{"localhost", ":", cpuPort}
+		h := strings.Join(s, "")
+		go func() {
+			log.Println(http.ListenAndServe(h, r))
+		}()
 	}
 }
