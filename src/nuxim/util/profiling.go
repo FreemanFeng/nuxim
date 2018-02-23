@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/pprof"
+	"runtime"
 	cpuprof "runtime/pprof"
 	"strings"
 )
@@ -41,5 +42,12 @@ func ProfilingCPU(cpuPort string) {
 		go func() {
 			log.Println(http.ListenAndServe(h, r))
 		}()
+	}
+}
+
+func UseCores(cores int) {
+	if cores > 0 {
+		Log("Use Cores", cores)
+		runtime.GOMAXPROCS(cores)
 	}
 }
